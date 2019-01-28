@@ -16,12 +16,12 @@ def train():
     optimizer = torch.optim.Adam(net.parameters(), lr = parameters["lr"])
     criterion = nn.BCELoss()
 
-    net.train()
     net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count())).cuda()
     cudnn.benchmark = True
     ecg_dataset = EcgDataset(is_train = True)
     train_loader = torch.utils.data.DataLoader(dataset = ecg_dataset, batch_size = 10)
     for epoch in range(parameters["num_epochs"]):
+        net.train()
         for i, (data, label) in enumerate(train_loader):
             data, label = data.to(device), label.to(device)
             output = net(data)
@@ -30,7 +30,7 @@ def train():
             loss.backward()
             optimizer.step()
         print ('Epoch [{}/{}], Loss: {:.4f}' .format(epoch+1, parameters["num_epochs"], loss.item()))
-    evaluation(net)
+        evaluation(net)
 
 if __name__ == "__main__":
     train()
