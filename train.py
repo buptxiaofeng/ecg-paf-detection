@@ -16,8 +16,9 @@ def train():
     optimizer = torch.optim.Adam(net.parameters(), lr = parameters["lr"])
     criterion = nn.BCELoss()
 
-    net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count())).cuda()
-    cudnn.benchmark = True
+    if torch.cuda.is_available():
+        net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count())).cuda()
+        cudnn.benchmark = True
     ecg_dataset = EcgDataset(is_train = True)
     train_loader = torch.utils.data.DataLoader(dataset = ecg_dataset, batch_size = 10)
     for epoch in range(parameters["num_epochs"]):
